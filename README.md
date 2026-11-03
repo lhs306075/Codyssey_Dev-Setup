@@ -239,6 +239,7 @@ $ sudo docker build -t my-nginx:1.0 .
 ```bash
 $ sudo docker run -d -p 8080:80 --name web my-nginx:1.0
 ```
+<img width="607" height="265" alt="image" src="https://github.com/user-attachments/assets/0510e28a-9ba0-4830-bb28-c136e00f5ab4" />
 
 
 
