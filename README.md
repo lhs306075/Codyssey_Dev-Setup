@@ -204,14 +204,42 @@ exit
 lhs3060753744@GNIA-C201-C03:~/test1$
 ```
 
- - 컨테이너 종료/유지(attach/exec 등)의 차이
-   >>도커 컨테이너는 메인 프로세스(PID 1)가 살아있는 동안만 실행됨.
-   >
-   >>**docker attach** 명령어로 컨테이너 연결 시 메인프로세스(PID 1)에 직접적으로 연결.  
-   >>종료 시 exit을 입력하면 즉시 컨테이너가 종료 되기에 메인 프로세스에서 나오는 출력을 확인할 때 주로 사용. 컨테이너를 유지하며 빠져나올 때에는 Ctrl + P, Q
-   >
-   >>**docker exec** 명령어는 새 프로세스를 생성하여 컨테이너를 연결.  
-   >>exit 입력 시 컨테이너는 유지되기에 디버깅이나 추가 작업 등에 이용됨.
- - git 설치 및 계정 연동
+- 컨테이너 종료/유지(attach/exec 등)의 차이
+   >도커 컨테이너는 메인 프로세스(PID 1)가 살아있는 동안만 실행됨.
+   
+   >**docker attach** 명령어로 컨테이너 연결 시 메인프로세스(PID 1)에 직접적으로 연결.  
+   >종료 시 exit을 입력하면 즉시 컨테이너가 종료 되기에 메인 프로세스에서 나오는 출력을 확인할 때 주로 사용. 컨테이너를 유지하며 빠져나올 때에는 Ctrl + P, Q
+   
+   >**docker exec** 명령어는 새 프로세스를 생성하여 컨테이너를 연결.  
+   >exit 입력 시 컨테이너는 유지되기에 디버깅이나 추가 작업 등에 이용됨.
+
+ - 기존 Dockerfile 기반 커스텀 이미지 제작  
+   - (A) Nginx 웹 서버 베이스 이미지 활용.  
+   - 이미지 크기가 작고 빌드가 빠르기에 Docker Hub 공식 이미지인 Nginx:alpine를 사용함. 
+
+```Docker
+FROM nginx:alpine (베이스)
+COPY index.html /usr/share/nginx/html/index.html 
+   (index.html을 이미지 안의 Nginx 웹 폴더로 복사.)
+LABEL maintainer="호성" 
+   (이미지에 작성자 이름 표기)
+HEALTHCHECK --interval=30s CMD wget -q -O /dev/null http://localhost/ || exit 1 
+   (도커가 30초마다 컨테이너 내에서 wget으로 localhost에 접속 시도. 페이지가 정상적으로 열리면 healthy, 
+   실패하면 실패코드 반환. 여러번 실패 시 unhealthy)
+```
+ - 빌드 결과
+```bash
+$ sudo docker build -t my-nginx:1.0 .
+[+] Building 4.8s (7/7) FINISHED                                                                docker:default
+ => [internal] load build definition from Dockerfile                                                      0.0s
+... 생략 ...
+ => => unpacking to docker.io/library/my-nginx:1.0                                                        0.4s
+ ```
+  - 실행 결과
+```bash
+$ sudo docker run -d -p 8080:80 --name web my-nginx:1.0
+```
+
+
 
 
