@@ -272,6 +272,7 @@ lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ curl http://localhost:8082
 "Type":"bind", 폴더 경로가 보임 -> 바인드 마운트
 
  3. 호스트에서 파일 수정 후 반영 확인
+    <img width="711" height="383" alt="image" src="https://github.com/user-attachments/assets/9d9614eb-5930-40be-8f70-f7e7985b1b6c" />
  ```bash
  lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ curl http://localhost:8082
 <!DOCTYPE html>
