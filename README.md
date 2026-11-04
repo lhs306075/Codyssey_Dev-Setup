@@ -350,7 +350,7 @@ user.name=lhs306075
 user.email=lhs306075@gmail.com
 init.defaultbranch=main
 ```
-- GitHub 연동
+- GitHub 연동 (VSCode)
 ```git
 lhs3060753744@GNIA-C402-J01 UCRT64 ~/Desktop/lhs/Dev-Setup (main)
 $ git remote -v
