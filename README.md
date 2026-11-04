@@ -1,7 +1,8 @@
-## 프로젝트 개요
+### 프로젝트 개요
 #### 내 컴퓨터에 개발자용 '작업실' 꾸미기
-- Docker 및 Git 설치, 터미널 세팅하기.
-   
+
+
+
 ### 1) 실행 환경
 - OS: Ubuntu 26.04.1 LTS (WSL)
 - Shell: bash
@@ -363,3 +364,201 @@ origin  https://github.com/lhs306075/Dev-Setup.git (push)
 <img width="1030" height="612" alt="image" src="https://github.com/user-attachments/assets/99ed3559-2e64-4cc7-93b9-dda1d56bb50f" />
 <img width="1438" height="1361" alt="image" src="https://github.com/user-attachments/assets/df48ce5d-adab-4802-bd31-9f346d7804f3" />
 
+
+### 4) 보너스 과제
+1. Docker Compose 기초
+ - docker-compose.yml 생성
+
+```docker
+services:
+  web:
+    build: .
+    image: my-nginx:1.0
+    container_name: compose-web
+    ports:
+      - "8080:80"
+```
+ - Compose 실행
+ ```docker
+ lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker compose up -d  --build
+[+] up 3/3
+ ✔ Image my-nginx:1.0        Built                                                                                                                                      0.7s
+ ✔ Network dev-setup_default Created                                                                                                                                    0.0s
+ ✔ Container compose-web     Started                                                                                                                                    0.2s
+lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker compose ps
+NAME          IMAGE          COMMAND                  SERVICE   CREATED         STATUS                            PORTS
+compose-web   my-nginx:1.0   "/docker-entrypoint.…"   web       8 seconds ago   Up 8 seconds (health: starting)   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp
+lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ curl http://localhost:8080
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>My Nginx</title></head>
+<body><h1>Hello World!</h1></body>
+```
+
+   - 배움포인트 : 컨테이너 실행 명령이 "문서화 된 실행 설정"으로 바뀌는 이유
+      - docker run 명령을 매번 사용하면 실행할 때마다 옵션을 직접 입력해야 해서 **실수하기 쉽다.** 
+      - 실행 설정 파일을 Git으로 관리하면 **다른 사람도 똑같은 환경**을 docker compose up **한 줄로 쉽게 재현** 할 수 있다.
+
+2. Docker Compose 멀티 컨테이너
+ - docker-compose.yml 수정
+ ```docker
+ services:
+  web:
+    build: .
+    image: my-nginx:1.0
+    container_name: compose-web
+    ports:
+      - "8080:80"
+
+  client:
+    image: alpine
+    container_name: compose-client
+    command: sleep infinity
+    depends_on:
+      - web
+ ```
+  - 실행
+  ```bash
+  lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker compose up -d --build
+[+] up 4/4
+ ✔ Image alpine Pulled                                                                                                                                         3.2s
+...
+[+] up 8/8
+ ✔ Image alpine              Pulled                                                                                                                            3.2s
+ ✔ Image my-nginx:1.0        Built                                                                                                                             0.5s
+ ✔ Network dev-setup_default Created                                                                                                                           0.0s
+ ✔ Container compose-web     Started                                                                                                                           0.3s
+ ✔ Container compose-client  Started                                                                                                                           0.3s
+lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker compose ps
+NAME             IMAGE          COMMAND                  SERVICE   CREATED         STATUS                            PORTS
+compose-client   alpine         "sleep infinity"         client    6 seconds ago   Up 5 seconds                      
+compose-web      my-nginx:1.0   "/docker-entrypoint.…"   web       6 seconds ago   Up 5 seconds (health: starting)   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp
+```
+ - 컨테이너 간 통신 확인 (client 컨테이너 내에서 web 서버에 접속해보기)
+ ```bash
+ lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker compose exec client wget -qO- http://web
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>My Nginx</title></head>
+<body><h1>Hello World!</h1></body>
+</html>
+```
+ - 네트워크 확인
+ ```bash
+ lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker network ls
+NETWORK ID     NAME                DRIVER    SCOPE
+49a2513f4304   bridge              bridge    local
+76031fb7692c   dev-setup_default   bridge    local
+63c9c6517acb   host                host      local
+cdd67917932d   none                null      local
+lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker network inspect dev-setup_default
+[
+    {
+        "Name": "dev-setup_default",
+        "Id": "76031fb7692c9b8a0f0409dec6e506ff4ba8ed4160b104f6e6c8823f5a4cfe3c",
+        "Created": "2026-11-04T08:22:33.151243846Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+       ...
+        "Containers": {
+            "20c29bbf64f5a8d7cca96b7c3f7e48c9b5b5d73fff66311513e3ac6b6a59f746": {
+                "Name": "compose-web",
+                "EndpointID": "9e1570164f3ea9113b76848382710bc82a23aa6d02b7e1365523171ea05cb49e",
+                "MacAddress": "b2:9b:e1:8e:61:7d",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            },
+            "51307d937b97850aa5988d33e3dd0a833cff93a1ed4b28d78cf347b7c1fe78d4": {
+                "Name": "compose-client",
+                "EndpointID": "da7f2959c2958677d76387617dc5bc95266fc5e8b69c7fa20692253056abcf5e",
+                "MacAddress": "2a:88:79:5b:ef:55",
+                "IPv4Address": "172.18.0.3/16",
+                "IPv6Address": ""
+            }
+        ...
+]
+```
+ - 배움 포인트 : 네트워크와 서비스 디스커버리
+   - Compose는 같은 yml 파일의 여러 서비스들을 **하나의 네트워크**(dev-setup_default)로 연결함.
+   - 네트워크 안에서의 서비스들은 도커의 내장 DNS를 이용해 서로를 서비스 이름으로 찾을 수 있음. -> **서비스 디스커버리**
+
+3. Compose 운영 명령어 습득
+ - ps : 현재 상태 확인
+ ```bash
+ lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker compose ps
+NAME             IMAGE          COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+compose-client   alpine         "sleep infinity"         client    18 minutes ago   Up 18 minutes             
+compose-web      my-nginx:1.0   "/docker-entrypoint.…"   web       18 minutes ago   Up 18 minutes (healthy)   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp
+```
+ - logs : 로그 확인
+ ```bash
+ lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker compose logs web
+compose-web  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+compose-web  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+compose-web  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+compose-web  | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+compose-web  | 10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+compose-web  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+compose-web  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+compose-web  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+compose-web  | /docker-entrypoint.sh: Configuration complete; ready for start up
+compose-web  | 2026/11/04 08:22:33 [notice] 1#1: using the "epoll" event method
+compose-web  | 2026/11/04 08:22:33 [notice] 1#1: nginx/1.31.8
+compose-web  | 2026/11/04 08:22:33 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0) 
+compose-web  | 2026/11/04 08:22:33 [notice] 1#1: OS: Linux 6.18.54.1-microsoft-standard-WSL2
+compose-web  | 2026/11/04 08:22:33 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+compose-web  | 2026/11/04 08:22:33 [notice] 1#1: start worker processes
+compose-web  | 2026/11/04 08:22:33 [notice] 1#1: start worker process 30
+...
+compose-web  | 2026/11/04 08:22:33 [notice] 1#1: start worker process 53
+compose-web  | ::1 - - [04/Nov/2026:08:23:03 +0000] "GET / HTTP/1.1" 200 132 "-" "Wget" "-"
+compose-web  | ::1 - - [04/Nov/2026:08:24:33 +0000] "GET / HTTP/1.1" 200 132 "-" "Wget" "-"
+compose-web  | 172.18.0.3 - - [04/Nov/2026:08:24:44 +0000] "GET / HTTP/1.1" 200 132 "-" "Wget" "-"
+compose-web  | ::1 - - [04/Nov/2026:08:25:03 +0000] "GET / HTTP/1.1" 200 132 "-" "Wget" "-"
+compose-web  | ::1 - - [04/Nov/2026:08:41:04 +0000] "GET / HTTP/1.1" 200 132 "-" "Wget" "-"
+compose-web  | 172.18.0.1 - - [04/Nov/2026:08:41:31 +0000] "GET / HTTP/1.1" 200 132 "-" "curl/8.18.0" "-"
+compose-web  | ::1 - - [04/Nov/2026:08:41:34 +0000] "GET / HTTP/1.1" 200 132 "-" "Wget" "-"
+compose-web  | 172.18.0.1 - - [04/Nov/2026:08:41:44 +0000] "GET /ddd HTTP/1.1" 404 153 "-" "curl/8.18.0" "-"
+compose-web  | 2026/11/04 08:41:44 [error] 32#32: *41 open() "/usr/share/nginx/html/ddd" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET /ddd HTTP/1.1", host: "localhost:8080"
+compose-web  | ::1 - - [04/Nov/2026:08:42:04 +0000] "GET / HTTP/1.1" 200 132 "-" "Wget" "-"
+compose-web  | 172.18.0.3 - - [04/Nov/2026:08:42:05 +0000] "GET / HTTP/1.1" 200 132 "-" "Wget" "-"
+```
+
+ - down : 종료 및 정리
+ ```bash
+ lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker compose down
+[+] down 3/3
+ ✔ Container compose-client  Removed                                                                                                                                    3.2s
+ ✔ Container compose-web     Removed                                                                                                                                    0.4s
+ ✔ Network dev-setup_default Removed                                                                                                                                    0.2s
+lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker compose ps
+NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
+```
+ - up : 다시 실행
+ ```bash
+ lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker compose up -d
+[+] up 3/3
+ ✔ Network dev-setup_default Created                                                                                                                                    0.0s
+ ✔ Container compose-web     Started                                                                                                                                    0.3s
+ ✔ Container compose-client  Started                                                                                                                                    0.3s
+lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker compose ps
+NAME             IMAGE          COMMAND                  SERVICE   CREATED         STATUS                            PORTS
+compose-client   alpine         "sleep infinity"         client    5 seconds ago   Up 4 seconds                      
+compose-web      my-nginx:1.0   "/docker-entrypoint.…"   web       5 seconds ago   Up 4 seconds (health: starting)   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp
+```
+ - 배움 포인트 : 운영 관점의 "상태 확인 루틴" 만들기
+   - (1) docker compose **ps** : 서비스가 Up인지 확인
+   - (2) curl http://localhost:8080 : 실제로 응답하는지 확인
+   - (3) docker compose **logs** --tail 20 web : 최근 20줄의 요청과 에러가 있는지 확인
+   - (4) 문제가 있으면 -> docker compose **down** -> docker compose **up** -d로 재시작

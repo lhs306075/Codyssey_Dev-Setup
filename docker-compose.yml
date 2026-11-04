@@ -1,0 +1,14 @@
+services:
+  web:
+    build: .
+    image: my-nginx:1.0
+    container_name: compose-web
+    ports:
+      - "8080:80"
+
+  client:
+    image: alpine
+    container_name: compose-client
+    command: sleep infinity
+    depends_on:
+      - web
