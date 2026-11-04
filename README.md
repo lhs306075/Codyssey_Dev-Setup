@@ -239,9 +239,90 @@ $ sudo docker build -t my-nginx:1.0 .
 ```bash
 $ sudo docker run -d -p 8080:80 --name web my-nginx:1.0
 ```
- - localhost 접속
+ - localhost 접속  (8080 포트 매핑, 이미지 및 curl 결과)    
 <img width="607" height="265" alt="image" src="https://github.com/user-attachments/assets/0510e28a-9ba0-4830-bb28-c136e00f5ab4" />
+```bash
+lhs3060753744@GNIA-C402-J01:~$ curl http://localhost:8080
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>My Nginx</title></head>
+<body><h1>Hello, World!</h1></body>
+</html>
+```
 
+ #### Docker 볼륨 영속성 검증
+ 1. 볼륨 생성
+ ```bash
+ lhs3060753744@GNIA-C402-J01:~$ sudo docker volume create mydata
+mydata
+lhs3060753744@GNIA-C402-J01:~$ sudo docker volume ls
+DRIVER    VOLUME NAME
+local     mydata
+```
+ 2. 볼륨 연결 및 컨테이너 실행
+ ```bash
+ lhs3060753744@GNIA-C402-J01:~$ sudo docker run -d --name vol-test -v mydata:/data ubuntu sleep infinity
+d526c8e47b09e49033686d028c095186430d0830655d2842904812a2aa9c0c1e
+lhs3060753744@GNIA-C402-J01:~$ sudo docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                    PORTS                                     NAMES
+d526c8e47b09   ubuntu         "sleep infinity"         5 seconds ago    Up 4 seconds                                                        vol-test
+```
+ 3. 데이터 쓰기 (컨테이너 삭제 전 확인)
+ ```bash
+ lhs3060753744@GNIA-C402-J01:~$ sudo docker exec -it vol-test bash -lc "echo hi > /data/hello.txt && cat /data/hello.txt"
+hi
+```
+ 4. 컨테이너 삭제
+ ```bash
+ lhs3060753744@GNIA-C402-J01:~$ sudo docker rm -f vol-test
+vol-test
+lhs3060753744@GNIA-C402-J01:~$ sudo docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                    PORTS                                     NAMES
+```
+ 5. 새 컨테이너에 같은 볼륨 연결 (기존 컨테이너 삭제 후 확인)
+```bash
+lhs3060753744@GNIA-C402-J01:~$ sudo docker run -d --name vol-test2 -v mydata:/data ubuntu sleep infinity
+6d9aee5a324a51f6665881c59b23de78bfea444544a00b52baae7d404096bfb4
+lhs3060753744@GNIA-C402-J01:~$ sudo docker exec -it vol-test2 bash -lc "cat /data/hello.txt"
+hi
+```
 
+#### Git 설정 및 GitHub 연동
+ - Git 설정
+ ```git
+ lhs3060753744@GNIA-C402-J01 UCRT64 ~/Desktop/lhs/Dev-Setup (main)
+$ git config --global user.name "lhs306075"
 
+lhs3060753744@GNIA-C402-J01 UCRT64 ~/Desktop/lhs/Dev-Setup (main)
+$ git config --global user.email "lhs306075@gmail.com"
 
+lhs3060753744@GNIA-C402-J01 UCRT64 ~/Desktop/lhs/Dev-Setup (main)
+$ git config --global init.defaultBranch main
+```
+```git
+lhs3060753744@GNIA-C402-J01 UCRT64 ~/Desktop/lhs/Dev-Setup (main)
+$ git config --list
+diff.astextplain.textconv=astextplain
+filter.lfs.clean=git-lfs clean -- %f
+filter.lfs.smudge=git-lfs smudge -- %f
+filter.lfs.process=git-lfs filter-process
+filter.lfs.required=true
+http.sslbackend=schannel
+core.autocrlf=true
+core.fscache=true
+core.symlinks=false
+pull.rebase=false
+credential.helper=manager
+credential.https://dev.azure.com.usehttppath=true
+init.defaultbranch=master
+user.name=lhs306075
+user.email=lhs306075@gmail.com
+init.defaultbranch=main
+```
+- GitHub 연동
+```git
+lhs3060753744@GNIA-C402-J01 UCRT64 ~/Desktop/lhs/Dev-Setup (main)
+$ git remote -v
+origin  https://github.com/lhs306075/Dev-Setup.git (fetch)
+origin  https://github.com/lhs306075/Dev-Setup.git (push)
+```
