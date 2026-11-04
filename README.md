@@ -9,9 +9,9 @@
 - Git: 2.53.0
 
 ### 2) 수행 체크리스트
-- [O] 터미널 기본 조작 및 폴더 구성
-- [O] Docker 설치/점검
-- [O] hello-world 실행
+- [X] 터미널 기본 조작 및 폴더 구성
+- [X] Docker 설치/점검
+- [X] hello-world 실행
 - [x] Dockerfile 빌드/실행
 - [x] 포트 매핑 접속(2회)
 - [x] 바인드 마운트 반영
@@ -247,6 +247,37 @@ lhs3060753744@GNIA-C402-J01:~$ curl http://localhost:8080
 <html>
 <head><meta charset="UTF-8"><title>My Nginx</title></head>
 <body><h1>Hello, World!</h1></body>
+</html>
+```
+ #### Docker 바인드 마운트
+ 1. 바인드 마운트로 컨테이너 실행
+ ```bash
+ lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ sudo docker run -d -p 8082:80 --name bind-test -v $(pwd):/usr/share/nginx/html nginx:alpine   
+Unable to find image 'nginx:alpine' locally
+alpine: Pulling from library/nginx
+Digest: sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c6698d2aed0606
+Status: Downloaded newer image for nginx:alpine
+49bae50114a126abb892e2e1ea727191dfef4652d61e91afe8b83f814b0a64c4
+lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ curl http://localhost:8082
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>My Nginx</title></head>
+<body><h1>Hello, World!</h1></body>
+```
+ 2. 연결 방식 확인
+ ```bash
+ lhs3060753744@GNIA-C402-J01:/mnt/c/Users/lhs3060753744/Desktop/lhs/Dev-Setup$ sudo docker inspect --format '{{json .Mounts}}' bind-test
+[{"Type":"bind","Source":"/mnt/c/Users/lhs3060753744/Desktop/lhs/Dev-Setup","Destination":"/usr/share/nginx/html","Mode":"","RW":true,"Propagation":"rprivate"}]
+```
+"Type":"bind", 폴더 경로가 보임 -> 바인드 마운트
+
+ 3. 호스트에서 파일 수정 후 반영 확인
+ ```bash
+ lhs3060753744@GNIA-C402-J01:.../lhs/Dev-Setup$ curl http://localhost:8082
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>My Nginx</title></head>
+<body><h1>Bind Mount Test!</h1></body>
 </html>
 ```
 
