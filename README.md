@@ -18,14 +18,14 @@
 - [x] 볼륨 영속성
 - [x] Git 설정 + VSCode GitHub 연동
 
- ### 3) 수행 로그(발췌)
+ ### 3) 수행 로그
  #### 기본 터미널 조작
  - 현재 위치 확인
 ```bash
 lhs3060753744@GNIA-C201-C03:~$ pwd
 /home/lhs3060753744
 ```
- - 목록 확인(숨김 파일 포함)
+ - 현재 폴더 내 파일 목록 확인(숨김 파일 포함)
 ```bash
 lhs3060753744@GNIA-C201-C03:~$ ls -la
 total 28
@@ -102,7 +102,7 @@ total 8
 -rw-r--r-- 1 lhs3060753744 lhs3060753744   13 Nov  3 14:37 test2
 drwxr-xr-x 2 lhs3060753744 lhs3060753744 4096 Nov  3 14:51 testfolder
 ```
- - 파일 권한 변경 (User에게 실행권한 추가)
+ - 파일 권한 변경 (test2 -> User에게 실행권한 추가)
  ```bash
 lhs3060753744@GNIA-C201-C03:~/test1$ chmod u+x test2
 lhs3060753744@GNIA-C201-C03:~/test1$ ls -l
@@ -110,7 +110,7 @@ total 8
 -rwxr--r-- 1 lhs3060753744 lhs3060753744   13 Nov  3 14:37 test2
 drwxr-xr-x 2 lhs3060753744 lhs3060753744 4096 Nov  3 14:51 testfolder
 ```
- - 폴더 및 하위 파일 권한 변경 (유저 : 읽기/쓰기, 그룹 : 읽기, 기타 : 읽기/실행)
+ - 폴더 및 하위 파일 권한 변경 (testfolder -> 유저 : 읽기/쓰기, 그룹 : 읽기, 기타 : 읽기/실행)
 ```bash
 lhs3060753744@GNIA-C201-C03:~/test1$ chmod -R 645 testfolder
 lhs3060753744@GNIA-C201-C03:~/test1$ ls -l
@@ -120,12 +120,12 @@ drw-r--r-x 2 lhs3060753744 lhs3060753744 4096 Nov  3 14:51 testfolder
 ```
 
  #### Docker 설치 및 기본 점검
- - Docker 버전 확인 결과
+ - Docker 버전 확인
 ```bash
 lhs3060753744@GNIA-C201-C03:~$ docker --version
 Docker version 29.9.2, build a82e528
 ```
- - Docker 데몬 동작 여부 확인 결과
+ - Docker 데몬 동작 여부 확인
 ```bash
 lhs3060753744@GNIA-C201-C03:~$ docker info
 Client: Docker Engine - Community
@@ -215,7 +215,7 @@ lhs3060753744@GNIA-C201-C03:~/test1$
 
  - 기존 Dockerfile 기반 커스텀 이미지 제작  
    - (A) Nginx 웹 서버 베이스 이미지 활용.  
-   - 이미지 크기가 작고 빌드가 빠르기에 Docker Hub 공식 이미지인 Nginx:alpine를 사용함. 
+   - 이미지 크기가 작고 빌드가 빠르기에 Docker Hub 공식 이미지인 Nginx:alpine를 사용. 
 
 ```Docker
 FROM nginx:alpine (베이스)
@@ -240,7 +240,8 @@ $ sudo docker build -t my-nginx:1.0 .
 $ sudo docker run -d -p 8080:80 --name web my-nginx:1.0
 ```
  - localhost 접속  (8080 포트 매핑, 이미지 및 curl 결과)    
-<img width="607" height="265" alt="image" src="https://github.com/user-attachments/assets/0510e28a-9ba0-4830-bb28-c136e00f5ab4" />
+<img width="607" height="265" alt="image" src="https://github.com/user-attachments/assets/0510e28a-9ba0-4830-bb28-c136e00f5ab4">
+
 ```bash
 lhs3060753744@GNIA-C402-J01:~$ curl http://localhost:8080
 <!DOCTYPE html>
@@ -249,6 +250,7 @@ lhs3060753744@GNIA-C402-J01:~$ curl http://localhost:8080
 <body><h1>Hello, World!</h1></body>
 </html>
 ```
+
  #### Docker 바인드 마운트
  1. 바인드 마운트로 컨테이너 실행
  ```bash
@@ -321,7 +323,7 @@ hi
 
 #### Git 설정 및 GitHub 연동
  - Git 설정
- ```git
+ ```bash
  lhs3060753744@GNIA-C402-J01 UCRT64 ~/Desktop/lhs/Dev-Setup (main)
 $ git config --global user.name "lhs306075"
 
@@ -331,7 +333,7 @@ $ git config --global user.email "lhs306075@gmail.com"
 lhs3060753744@GNIA-C402-J01 UCRT64 ~/Desktop/lhs/Dev-Setup (main)
 $ git config --global init.defaultBranch main
 ```
-```git
+```bash
 lhs3060753744@GNIA-C402-J01 UCRT64 ~/Desktop/lhs/Dev-Setup (main)
 $ git config --list
 diff.astextplain.textconv=astextplain
@@ -352,7 +354,7 @@ user.email=lhs306075@gmail.com
 init.defaultbranch=main
 ```
 - GitHub 연동 (VSCode)
-```git
+```bash
 lhs3060753744@GNIA-C402-J01 UCRT64 ~/Desktop/lhs/Dev-Setup (main)
 $ git remote -v
 origin  https://github.com/lhs306075/Dev-Setup.git (fetch)
