@@ -1,11 +1,10 @@
-### 프로젝트 개요
-#### 내 컴퓨터에 개발자용 '작업실' 꾸미기
-
+### 프로젝트 개요 (내 컴퓨터에 개발자용 '작업실' 꾸미기)
+터미널, Docker, Git/GitHub를 직접 세팅해보고 사용해보기.
 
 
 ### 1) 실행 환경
-- OS: Ubuntu 26.04.1 LTS (WSL)
-- Shell: bash
+- OS: Windows 11 + WSL2 (Ubuntu 26.04.1 LTS)
+- Shell: bash (WSL)
 - Docker: 29.9.2
 - Git: 2.53.0
 
@@ -14,7 +13,7 @@
 - [X] Docker 설치/점검
 - [X] hello-world 실행
 - [x] Dockerfile 빌드/실행
-- [x] 포트 매핑 접속(2회)
+- [x] 포트 매핑 접속
 - [x] 바인드 마운트 반영
 - [x] 볼륨 영속성
 - [x] Git 설정 + VSCode GitHub 연동
@@ -129,27 +128,117 @@ Docker version 29.9.2, build a82e528
  - Docker 데몬 동작 여부 확인
 ```bash
 lhs3060753744@GNIA-C201-C03:~$ docker info
-Client: Docker Engine - Community
+Client:
  Version:    29.9.2
  Context:    default
  Debug Mode: false
  Plugins:
+  agent: Docker AI Agent Runner (Docker Inc.)
+    Version:  v1.152.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-agent
+  ai: Docker AI Agent - Ask Gordon (Docker Inc.)
+    Version:  v1.33.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-ai
   buildx: Docker Buildx (Docker Inc.)
     Version:  v0.38.1
-    Path:     /usr/libexec/docker/cli-plugins/docker-buildx
+    Path:     /usr/local/lib/docker/cli-plugins/docker-buildx
   compose: Docker Compose (Docker Inc.)
-    Version:  v5.7.0
-    Path:     /usr/libexec/docker/cli-plugins/docker-compose
+    Version:  v5.6.1
+    Path:     /usr/local/lib/docker/cli-plugins/docker-compose
+  debug: Get a shell into any image or container (Docker Inc.)
+    Version:  0.49.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-debug
+  desktop: Docker Desktop commands (Docker Inc.)
+    Version:  4.98.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-desktop
+  dhi: CLI for managing Docker Hardened Images (Docker Inc.)
+    Version:  v0.0.9
+    Path:     /usr/local/lib/docker/cli-plugins/docker-dhi
+  extension: Manages Docker extensions (Docker Inc.)
+    Version:  v0.2.32
+    Path:     /usr/local/lib/docker/cli-plugins/docker-extension
+  init: Creates Docker-related starter files for your project (Docker Inc.)
+    Version:  v1.4.1
+    Path:     /usr/local/lib/docker/cli-plugins/docker-init
+  mcp: Docker MCP Plugin (Docker Inc.)
+    Version:  v0.44.2
+    Path:     /usr/local/lib/docker/cli-plugins/docker-mcp
+  model: Docker Model Runner (Docker Inc.)
+    Version:  v1.2.9
+    Path:     /usr/local/lib/docker/cli-plugins/docker-model
+  offload: Docker Offload (Docker Inc.)
+    Version:  v0.7.35
+    Path:     /usr/local/lib/docker/cli-plugins/docker-offload
+  pass: Docker Pass Secrets Manager Plugin (beta) (Docker Inc.)
+    Version:  v0.3.2
+    Path:     /usr/local/lib/docker/cli-plugins/docker-pass
+  sandbox: "docker sandbox" is deprecated, use Docker Sandboxes instead (Docker Inc.)
+    Version:  v0.13.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-sandbox
+  scout: Docker Scout (Docker Inc.)
+    Version:  v1.27.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-scout
 
 Server:
-permission denied while trying to connect to the docker API at unix:///var/run/docker.sock
+ Containers: 2
+  Running: 2
+  Paused: 0
+  Stopped: 0
+ Images: 2
+ Server Version: 29.9.2
+ Storage Driver: overlayfs
+  driver-type: io.containerd.snapshotter.v1
+ Logging Driver: local
+ Cgroup Driver: cgroupfs
+ Cgroup Version: 2
+ Plugins:
+  Volume: local
+  Network: bridge host ipvlan macvlan null overlay
+  Log: awslogs fluentd gcplogs gelf journald json-file local splunk syslog
+ CDI spec directories:
+  /etc/cdi
+  /var/run/cdi
+ Discovered Devices:
+  cdi: docker.com/gpu=webgpu
+ Swarm: inactive
+ Runtimes: runc io.containerd.runc.v2 nvidia
+ Default Runtime: runc
+ Init Binary: docker-init
+ containerd version: b7a25261e029d68978bbf290df0a62fc819b3c51
+ runc version: v1.5.2-0-g29dd3dc2
+ init version: de40ad0
+ Security Options:
+  seccomp
+   Profile: builtin
+  cgroupns
+ Kernel Version: 6.18.54.1-microsoft-standard-WSL2
+ Operating System: Docker Desktop
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 24
+ Total Memory: 15.25GiB
+ Name: docker-desktop
+ ID: cff7e26d-098f-48b1-80b1-b5d25d5e6520
+ Docker Root Dir: /var/lib/docker
+ Debug Mode: false
+ HTTP Proxy: http.docker.internal:3128
+ HTTPS Proxy: http.docker.internal:3128
+ No Proxy: hubproxy.docker.internal
+ Labels:
+  com.docker.desktop.address=unix:///var/run/docker-cli.sock
+ Experimental: false
+ Insecure Registries:
+  hubproxy.docker.internal:5555
+  127.0.0.0/8
+  ::1/128
+ Live Restore Enabled: false
+ Firewall Backend: iptables
 ```
 
  #### Docker 기본 운영 명령 수행
   - 이미지 목록 확인
  ```bash
 lhs3060753744@GNIA-C201-C03:~/test1$ sudo docker images
-[sudo: authenticate] Password:
                                                                                                     i Info →   U  In Use
 IMAGE                ID             DISK USAGE   CONTENT SIZE   EXTRA
 hello-world:latest   c567b231f656       25.9kB         9.49kB    U
@@ -206,13 +295,13 @@ lhs3060753744@GNIA-C201-C03:~/test1$
 ```
 
 - 컨테이너 종료/유지(attach/exec 등)의 차이
-   >도커 컨테이너는 메인 프로세스(PID 1)가 살아있는 동안만 실행됨.
+    - 도커 컨테이너는 메인 프로세스(PID 1)가 살아있는 동안만 실행됨.
    
-   >**docker attach** 명령어로 컨테이너 연결 시 메인프로세스(PID 1)에 직접적으로 연결.  
-   >종료 시 exit을 입력하면 즉시 컨테이너가 종료 되기에 메인 프로세스에서 나오는 출력을 확인할 때 주로 사용. 컨테이너를 유지하며 빠져나올 때에는 Ctrl + P, Q
+    - **docker attach** 명령어로 컨테이너 연결 시 메인프로세스(PID 1)에 직접적으로 연결.  
+    - 종료 시 exit을 입력하면 즉시 컨테이너가 종료 되기에 메인 프로세스에서 나오는 출력을 확인할 때 주로 사용. 컨테이너를 유지하며 빠져나올 때에는 Ctrl + P, Q
    
-   >**docker exec** 명령어는 새 프로세스를 생성하여 컨테이너를 연결.  
-   >exit 입력 시 컨테이너는 유지되기에 디버깅이나 추가 작업 등에 이용됨.
+    - **docker exec** 명령어는 새 프로세스를 생성하여 컨테이너를 연결.  
+    - exit 입력 시 컨테이너는 유지되기에 디버깅이나 추가 작업 등에 이용됨.
 
  - 기존 Dockerfile 기반 커스텀 이미지 제작  
    - (A) Nginx 웹 서버 베이스 이미지 활용.  
@@ -567,7 +656,7 @@ compose-web      my-nginx:1.0   "/docker-entrypoint.…"   web       5 seconds a
   - docker-compose.yml 수정
     - environment 부분 -> 환경변수 
     - .env 파일로 값만 따로 관리하여 .gitignore을 통해 값을 숨길 수 있음.
-```bash
+```yaml
 services:
   web:
     build: .
@@ -639,3 +728,8 @@ lhs3060753744@GNIA-C201-H01:.../lhs/Dev-Setup$ git remote -v
 origin  git@github.com:lhs306075/Dev-Setup.git (fetch)
 origin  git@github.com:lhs306075/Dev-Setup.git (push)
 ```
+ - 배움포인트 : 인증 방식 차이와 보안 습관
+   - HTTPS 방식은 push 할 때 GitHub 아이디와 개인 액세스 토큰으로 인증하고, SSH 방식은 PC에 저장된 개인 키와 GitHub에 등록한 공개키가 짝이 맞는지로 인증함.
+   - SSH 방식은 비밀번호나 토큰을 매번 입력할 필요가 없고 키가 PC단위로 등록되어 접근하는 PC를 구분하고, 삭제하고 싶은 PC의 키만 삭제할 수 있음.
+   - 개인 키는 절대 공유하거나 저장소에 push하면 안되고, 공개키만 GitHub에 등록해야 함.
+   - 공용 PC에서 작업이 끝나면 해당 PC의 키를 삭제하는 습관이 필요함.
