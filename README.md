@@ -562,3 +562,79 @@ compose-web      my-nginx:1.0   "/docker-entrypoint.…"   web       5 seconds a
    - (2) curl http://localhost:8080 : 실제로 응답하는지 확인
    - (3) docker compose **logs** --tail 20 web : 최근 20줄의 요청과 에러가 있는지 확인
    - (4) 문제가 있으면 -> docker compose **down** -> docker compose **up** -d로 재시작
+
+ 4. 환경 변수 활용
+  - docker-compose.yml 수정
+    - environment 부분 -> 환경변수 
+    - .env 파일로 값만 따로 관리하여 .gitignore을 통해 값을 숨길 수 있음.
+```bash
+services:
+  web:
+    build: .
+    image: my-nginx:1.0
+    container_name: compose-web
+    environment:
+      - APP_MODE=production
+    ports:
+      - "8000:80"
+
+  client:
+    ...
+```
+ - 환경변수 설정 확인
+ ```bash
+ lhs3060753744@GNIA-C201-H01:.../lhs/Dev-Setup$ sudo docker compose up -d
+[+] up 2/2
+ ✔ Container compose-client Running                                                                                                                                   0.0s
+ ✔ Container compose-web    Started                                                                                                                                   0.8s
+lhs3060753744@GNIA-C201-H01:.../lhs/Dev-Setup$ sudo docker inspect compose-web --format '{{.Config.Env}}'
+[APP_MODE=production PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin NGINX_VERSION=1.31.8 PKG_RELEASE=1 DYNPKG_RELEASE=1 NJS_VERSION=1.0.2 NJS_RELEASE=1 ACME_VERSION=0.4.1]
+```
+ - 배움 포인트 : 설정과 코드의 분리
+   - 여기선 docker-compose.yml에 바로 환경변수를 넣어 설정했지만, 이런 방식이라면 깃에 그대로 push 되어 **민감한 정보가 노출** 될 수 있음.
+   - **.env** 파일을 생성하여 환경변수 값만 넣고 yml파일에는 '${APP_MODE}'와 같이 변수가 들어갈 자리를 지정해두면 값이 분리됨.
+   - .gitignore을 사용해 .env 파일은 깃에 push 되지 않도록 설정 하는 것이 안전하고, 값을 바꿔 실행하기에도 용이함.
+
+5. GitHub SSH 키 설정
+ - 현재 설정
+   - origin https://~~ -> https 방식
+```bash
+ lhs3060753744@GNIA-C201-H01:.../lhs/Dev-Setup$ git remote -v
+origin  https://github.com/lhs306075/Dev-Setup.git (fetch)
+origin  https://github.com/lhs306075/Dev-Setup.git (push)
+```
+ - ssh 키 만들기
+   - 개인 키와 공개 키가 만들어짐.
+ ```bash
+ lhs3060753744@GNIA-C201-H01:.../lhs/Dev-Setup$ ssh-keygen -t ed25519 -C "lhs306075@gmail.com"
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/lhs3060753744/.ssh/id_ed25519): 
+Created directory '/home/lhs3060753744/.ssh'.
+Enter passphrase for "/home/lhs3060753744/.ssh/id_ed25519" (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/lhs3060753744/.ssh/id_ed25519
+Your public key has been saved in /home/lhs3060753744/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:(생략)
+lhs306075@gmail.com
+The key's randomart image is:
+(생략)
+```
+ - GitHub에 공개키 등록 및 확인  
+(여기에 사진)
+```bash
+lhs3060753744@GNIA-C201-H01:.../lhs/Dev-Setup$ ssh -T git@github.com
+The authenticity of host 'github.com (20.200.245.247)' can't be established.
+ED25519 key fingerprint is: SHA256:(생략)
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes 
+Warning: Permanently added 'github.com' (ED25519) to the list of known hosts.
+Hi lhs306075! You've successfully authenticated, but GitHub does not provide shell access.
+```
+ - 저장소 주소 저장 방식 변경 https -> SSH
+```bash
+lhs3060753744@GNIA-C201-H01:.../lhs/Dev-Setup$ git remote set-url origin git@github.com:lhs306075/Dev-Setup.git
+lhs3060753744@GNIA-C201-H01:.../lhs/Dev-Setup$ git remote -v
+origin  git@github.com:lhs306075/Dev-Setup.git (fetch)
+origin  git@github.com:lhs306075/Dev-Setup.git (push)
+```
