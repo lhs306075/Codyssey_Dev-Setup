@@ -621,7 +621,8 @@ The key's randomart image is:
 (생략)
 ```
  - GitHub에 공개키 등록 및 확인  
-(여기에 사진)
+<img width="711" height="278" alt="스크린샷 2026-11-05 162137" src="https://github.com/user-attachments/assets/8a01535b-4421-4ed5-a67a-4768b92bb8f4" />
+
 ```bash
 lhs3060753744@GNIA-C201-H01:.../lhs/Dev-Setup$ ssh -T git@github.com
 The authenticity of host 'github.com (20.200.245.247)' can't be established.
